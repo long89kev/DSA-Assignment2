@@ -167,15 +167,25 @@ Heap<T>::Heap(
         int (*comparator)(T&, T&), 
         void (*deleteUserData)(Heap<T>* ) ){
     //YOUR CODE IS HERE
+    this->comparator = comparator;
+    this->deleteUserData = deleteUserData;
+    capacity = 10;
+    count = 0;
+    elements = new T[capacity];
 }
 template<class T>
 Heap<T>::Heap(const Heap<T>& heap){
     //YOUR CODE IS HERE
+    copyFrom(heap);
 }
 
 template<class T>
 Heap<T>& Heap<T>::operator=(const Heap<T>& heap){
     //YOUR CODE IS HERE
+    if(this != &heap){
+        removeInternalData();
+        copyFrom(heap);
+    }
     return *this;
 }
 
@@ -183,11 +193,16 @@ Heap<T>& Heap<T>::operator=(const Heap<T>& heap){
 template<class T>
 Heap<T>::~Heap(){
     //YOUR CODE IS HERE
+    removeInternalData();
 }
 
 template<class T>
 void Heap<T>::push(T item){ //item  = 25
     //YOUR CODE IS HERE
+    ensureCapacity(count + 1);
+    elements[count] = item;
+    reheapUp(count);
+    count++;
 }
 /*
       18
@@ -208,6 +223,12 @@ void Heap<T>::push(T item){ //item  = 25
 template<class T>
 T Heap<T>::pop(){
     //YOUR CODE IS HERE
+    if(count == 0) throw std::out_of_range("Heap is empty");
+    T item = elements[0];
+    elements[0] = elements[count - 1];
+    count--;
+    reheapDown(0);
+    return item;
 }
 
 /*
@@ -224,37 +245,59 @@ T Heap<T>::pop(){
 template<class T>
 const T Heap<T>::peek(){
     //YOUR CODE IS HERE
+    if(count == 0) throw std::out_of_range("Heap is empty");
+    return elements[0];
 }
 
 
 template<class T>
 void Heap<T>::remove(T item, void (*removeItemData)(T)){
     //YOUR CODE IS HERE
+    int idx = getItem(item);
+    if(idx == -1) return;
+    if(removeItemData != 0) removeItemData(elements[idx]);
+    elements[idx] = elements[count - 1];
+    count--;
+    reheapDown(idx);
 }
 
 template<class T>
 bool Heap<T>::contains(T item){
     //YOUR CODE IS HERE
+    return getItem(item) != -1;
 }
 
 template<class T>
 int Heap<T>::size(){
     //YOUR CODE IS HERE
+    return count;
 }
 
 template<class T>
 void Heap<T>::heapify(T array[], int size){
     //YOUR CODE IS HERE
+    if(size > capacity){
+        delete []elements;
+        elements = new T[size];
+        capacity = size;
+    }
+    count = size;
+    memcpy(elements, array, size*sizeof(T));
+    for(int idx = count/2 - 1; idx >= 0; idx--){
+        reheapDown(idx);
+    }
 }
 
 template<class T>
 void Heap<T>::clear(){
     //YOUR CODE IS HERE
+    count = 0;
 }
 
 template<class T>
 bool Heap<T>::empty(){
     //YOUR CODE IS HERE
+    return count == 0;
 }
 
 template<class T>
@@ -311,16 +354,35 @@ void Heap<T>::swap(int a, int b){
 template<class T>
 void Heap<T>::reheapUp(int position){
     //YOUR CODE IS HERE
+    int parent = (position - 1) / 2;
+    while(position > 0 && aLTb(elements[position], elements[parent])){
+        swap(position, parent);
+        position = parent;
+        parent = (position - 1) / 2;
+    }
 }
 
 template<class T>
 void Heap<T>::reheapDown(int position){
     //YOUR CODE IS HERE
+    int left = 2 * position + 1;
+    int right = 2 * position + 2;
+    int smallest = position;
+    if(left < count && aLTb(elements[left], elements[smallest])) smallest = left;
+    if(right < count && aLTb(elements[right], elements[smallest])) smallest = right;
+    if(smallest != position){
+        swap(position, smallest);
+        reheapDown(smallest);
+    }
 }
 
 template<class T>
 int Heap<T>::getItem(T item){
     //YOUR CODE IS HERE
+    for(int idx=0; idx < count; idx++){
+        if(elements[idx] == item) return idx;
+    }
+    return -1;
 }
 
 template<class T>
