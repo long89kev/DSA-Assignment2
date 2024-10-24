@@ -20,6 +20,8 @@ namespace fs = std::filesystem;
 #include "modelzoo/twoclasses.h"
 #include "modelzoo/threeclasses.h"
 
+#include "demo/heap/HeapDemo.h"
+
 
 int main(int argc, char** argv) {
     //dataloader:
@@ -28,8 +30,13 @@ int main(int argc, char** argv) {
     //case_batch_larger_nsamples();
     
     //Classification:
-    twoclasses_classification();
+    // twoclasses_classification();
     //threeclasses_classification();
+
+    cout << "Heap Demo: " << endl;
+    heapDemo1();
+    heapDemo2();
+    heapDemo3();
  
     return 0;
 }
