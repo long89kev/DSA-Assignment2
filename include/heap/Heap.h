@@ -276,15 +276,9 @@ int Heap<T>::size(){
 template<class T>
 void Heap<T>::heapify(T array[], int size){
     //YOUR CODE IS HERE
-    if(size > capacity){
-        delete []elements;
-        elements = new T[size];
-        capacity = size;
-    }
-    count = size;
-    memcpy(elements, array, size*sizeof(T));
-    for(int idx = count/2 - 1; idx >= 0; idx--){
-        reheapDown(idx);
+    clear();
+    for(int idx=0; idx < size; idx++){
+        push(array[idx]);
     }
 }
 
