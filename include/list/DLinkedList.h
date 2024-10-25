@@ -320,10 +320,6 @@ DLinkedList<T>::DLinkedList(const DLinkedList<T> &list)
 {
     // TODO
     // removeInternalData();
-    head = new Node();
-    tail = new Node();
-    head->next = tail;
-    tail->prev = head;
     count = 0;
     copyFrom(list);
     // Node *node = list.head->next;
@@ -572,11 +568,16 @@ void DLinkedList<T>::copyFrom(const DLinkedList<T> &list)
      */
     // TODO
     // removeInternalData();
+    head = new Node();
+    tail = new Node();
+    head->next = tail;
+    tail->prev = head;
     Node *node = list.head->next;
     while(node != list.tail){
         add(node->data);
         node = node->next;
     }
+    count = list.count;
     deleteUserData = list.deleteUserData;
     itemEqual = list.itemEqual;
 }
