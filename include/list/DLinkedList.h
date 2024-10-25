@@ -319,14 +319,21 @@ template <class T>
 DLinkedList<T>::DLinkedList(const DLinkedList<T> &list)
 {
     // TODO
+    // removeInternalData();
     head = new Node();
     tail = new Node();
     head->next = tail;
     tail->prev = head;
     count = 0;
-    this->itemEqual = list.itemEqual;
-    this->deleteUserData = list.deleteUserData;
     copyFrom(list);
+    // Node *node = list.head->next;
+    // while(node != list.tail){
+    //     add(node->data);
+    //     node = node->next;
+    // }
+
+    // this->itemEqual = list.itemEqual;
+    // this->deleteUserData = list.deleteUserData;
 }
 
 template <class T>
@@ -334,7 +341,6 @@ DLinkedList<T> &DLinkedList<T>::operator=(const DLinkedList<T> &list)
 {
     // TODO         
     if(this != &list){
-        removeInternalData();
         copyFrom(list);
     }
     return *this;
@@ -565,16 +571,14 @@ void DLinkedList<T>::copyFrom(const DLinkedList<T> &list)
      * Iterates through the source list and adds each element, preserving the order of the nodes.
      */
     // TODO
-    removeInternalData();
-    for(Node *node = list.head->next; node != list.tail; node = node->next){
+    // removeInternalData();
+    Node *node = list.head->next;
+    while(node != list.tail){
         add(node->data);
+        node = node->next;
     }
-    count = list.count;
-    head = list.head;
-    tail = list.tail;
-    count = list.count;
-    itemEqual = list.itemEqual;
     deleteUserData = list.deleteUserData;
+    itemEqual = list.itemEqual;
 }
 
 template <class T>
@@ -586,18 +590,13 @@ void DLinkedList<T>::removeInternalData()
      * Traverses and deletes each node between the head and tail to release memory.
      */
     // TODO
-    Node *node = head->next;
     if(deleteUserData != nullptr){
         deleteUserData(this);
     }
     clear();
-    delete head;
-    delete tail;
-    head = nullptr;
-    tail = nullptr;
+    head->next = tail;
+    tail->prev = head;
     count = 0;
-    deleteUserData = nullptr;
-    itemEqual = nullptr;
 }
 
 #endif /* DLINKEDLIST_H */
