@@ -320,7 +320,6 @@ DLinkedList<T>::DLinkedList(const DLinkedList<T> &list)
 {
     // TODO
     // removeInternalData();
-    count = 0;
     copyFrom(list);
     // Node *node = list.head->next;
     // while(node != list.tail){
@@ -337,6 +336,7 @@ DLinkedList<T> &DLinkedList<T>::operator=(const DLinkedList<T> &list)
 {
     // TODO         
     if(this != &list){
+        removeInternalData();
         copyFrom(list);
     }
     return *this;
@@ -567,7 +567,8 @@ void DLinkedList<T>::copyFrom(const DLinkedList<T> &list)
      * Iterates through the source list and adds each element, preserving the order of the nodes.
      */
     // TODO
-    // removeInternalData();
+    
+    //removeInternalData();
     head = new Node();
     tail = new Node();
     head->next = tail;
