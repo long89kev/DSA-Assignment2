@@ -26,5 +26,6 @@ Adam::~Adam() {
 
 IParamGroup* Adam::create_group(string name){
     //YOUR CODE IS HERE
+    return new AdamParamGroup(m_beta_1, m_beta_2);
 }
 
