@@ -67,6 +67,10 @@ void AdamParamGroup::register_param(string param_name,
         xt::xarray<double>* ptr_param,
         xt::xarray<double>* ptr_grad){
     //YOUR CODE IS HERE
+    m_pParams->put(param_name, ptr_param);
+    m_pGrads->put(param_name, ptr_grad);
+    m_pFirstMomment->put(param_name, new xt::xarray<double>(ptr_param->shape(), 0.0));
+    m_pSecondMomment->put(param_name, new xt::xarray<double>(ptr_param->shape(), 0.0));
 }
 void AdamParamGroup::register_sample_count(unsigned long long* pCounter){
     m_pCounter = pCounter;
@@ -74,11 +78,38 @@ void AdamParamGroup::register_sample_count(unsigned long long* pCounter){
 
 void AdamParamGroup::zero_grad(){
     //YOUR CODE IS HERE
+    DLinkedList<string> keys = m_pGrads->keys();
+    for(auto key: keys){
+        xt::xarray<double>* pGrad = m_pGrads->get(key);
+        xt::xarray<double>* pFirstMomment = m_pFirstMomment->get(key);
+        xt::xarray<double>* pSecondMomment = m_pSecondMomment->get(key);
+        xt::xarray<double>* pParam = m_pParams->get(key);
+        *pGrad = xt::zeros<double>(pParam->shape());
+        *pFirstMomment = xt::zeros<double>(pParam->shape());
+        *pSecondMomment = xt::zeros<double>(pParam->shape());
+    }
+    //reset sample_counter
+    *m_pCounter = 0;
 }
 
 void AdamParamGroup::step(double lr){
     //YOUR CODE IS HERE
-    
+    DLinkedList<string> keys = m_pGrads->keys();
+    for(auto key: keys){
+        xt::xarray<double>& grad = *m_pGrads->get(key);
+        xt::xarray<double>& first_moment = *m_pFirstMomment->get(key);
+        xt::xarray<double>& second_moment = *m_pSecondMomment->get(key);
+        xt::xarray<double>& param = *m_pParams->get(key);
+        
+        //UPDATE first_moment and second_moment:
+        first_moment = m_beta1*first_moment + (1 - m_beta1)*grad;
+        second_moment = m_beta2*second_moment + (1 - m_beta2)*grad*grad;
+        
+        //UPDATE param:
+        xt::xarray<double> first_moment_hat = first_moment/(1 - m_beta1_t);
+        xt::xarray<double> second_moment_hat = second_moment/(1 - m_beta2_t);
+        param = param - lr*first_moment_hat/(xt::sqrt(second_moment_hat) + 1e-7);
+    }
     //UPDATE step_idx:
     m_step_idx += 1;
     m_beta1_t *= m_beta1;
