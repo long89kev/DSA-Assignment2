@@ -57,14 +57,117 @@ public:
 public:
     Iterator begin(){
         //YOUR CODE IS HERE
+        this->index = 0;
+        if(this->batch_size > ptr_dataset->len()){
+           return end();
+        }
+        return Iterator(this, 0);
     }
     Iterator end(){
         //YOUR CODE IS HERE
+        int end_index = ptr_dataset->len();
+        if(drop_last){
+            end_index = ptr_dataset->len() - ptr_dataset->len() % batch_size;
+        }
+        bool end;
+        return Iterator(this, end_index);
     }
     
     //BEGIN of Iterator
 
     //YOUR CODE IS HERE: to define iterator
+
+    class Iterator{
+    public:
+        Iterator(DataLoader<DType, LType>* ptr_dataloader, int end_index = 0){
+            this->ptr_dataloader = ptr_dataloader;
+            this->current_index = 0;
+            this->created = false;
+            // if(this->ptr_dataloader->batch_size > ptr_dataloader->ptr_dataset->len()){
+            //     this->current_index = ptr_dataloader->ptr_dataset->len();
+            // }
+            if(end_index == 0){
+                this->current_index = ptr_dataloader->index;
+            } else {
+                this->current_index = end_index;
+            }
+        }
+        
+        Batch<DType, LType> operator*(){
+            if(!created){
+                current_batch = createBatch();
+                created = true;
+            }
+            return current_batch;
+        }
+
+        Iterator& operator++(){
+            if (current_index >= ptr_dataloader->ptr_dataset->len()) current_index = ptr_dataloader->ptr_dataset->len();
+            created = false;
+            return *this;
+        }
+
+        Iterator operator++(int){
+            Iterator it = *this;
+            ++(*this);
+            return it;
+        }
+        
+        bool operator!=(const Iterator& other) const{
+            return current_index != other.current_index;
+        }
+
+
+
+    private:
+        DataLoader<DType, LType>* ptr_dataloader;
+        int current_index;
+        Batch<DType, LType> current_batch = Batch<DType, LType>(xt::xarray<DType>(), xt::xarray<LType>());
+        bool created = false;
+
+    public:
+        Batch<DType, LType> createBatch(){
+            Dataset<DType, LType>* ptr_dataset = ptr_dataloader->ptr_dataset;
+            xt::svector<unsigned long> data_shape = ptr_dataset->get_data_shape();
+            int size_Batch = ptr_dataloader->batch_size;
+            if(!ptr_dataloader->drop_last){
+                // cout << "current_index: " << current_index << endl;
+                if (current_index + ptr_dataloader->batch_size + (ptr_dataloader->len() % ptr_dataloader->batch_size) >= ptr_dataset->len()) {
+                    // size_Batch = ptr_dataset->len() - current_index + ptr_dataloader->batch_size;
+                    size_Batch = ptr_dataloader->batch_size + (ptr_dataloader->len() % ptr_dataloader->batch_size);
+                }
+                // cout << "size_Batch: " << size_Batch << endl;
+                // cout << "current_index: " << current_index << endl;
+            } else size_Batch = ptr_dataloader->batch_size;
+            // if(ptr_dataloader->batch_size > ptr_dataset->len()) {
+            //     return Batch<DType, LType>(xt::xarray<DType>(), xt::xarray<LType>());
+            // }
+            data_shape[0] = size_Batch;
+            xt::xarray<DType> data = xt::empty<DType>(data_shape);
+            bool is_label = ptr_dataset->get_label_shape().size() > 0;
+            if(is_label){
+                xt::svector<unsigned long> label_shape = ptr_dataset->get_label_shape();
+                label_shape[0] = size_Batch;
+                xt::xarray<LType> label = xt::empty<LType>(label_shape);
+                for(int i = 0; i < size_Batch; i++){
+                    DataLabel<DType, LType> dl = ptr_dataset->getitem(ptr_dataloader->indices[current_index]);
+                    xt::view(data, i, xt::all(), xt::all()) = dl.getData();
+                    xt::view(label, i, xt::all(), xt::all()) = dl.getLabel();
+                    current_index++;
+                }
+                ptr_dataloader->index = current_index;
+                return Batch<DType, LType>(data, label);
+            } else {
+                for(int i = 0; i < size_Batch; i++){
+                    DataLabel<DType, LType> dl = ptr_dataset->getitem(ptr_dataloader->indices[current_index]);
+                    xt::view(data, i, xt::all(), xt::all()) = dl.getData();
+                    current_index++;
+                }
+                ptr_dataloader->index = current_index;
+                return Batch<DType, LType>(data, xt::xarray<LType>());
+            }
+        }
+    };   
 
     //END of Iterator
     
