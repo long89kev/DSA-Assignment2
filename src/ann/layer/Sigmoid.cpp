@@ -27,9 +27,13 @@ Sigmoid::~Sigmoid() {
 }
 xt::xarray<double> Sigmoid::forward(xt::xarray<double> X) {
     //YOUR CODE IS HERE
+    m_aCached_Y = 1.0 / (1.0 + xt::exp(-X));
+    return m_aCached_Y;
 }
 xt::xarray<double> Sigmoid::backward(xt::xarray<double> DY) {
     //YOUR CODE IS HERE
+    xt::xarray<double> DX = DY * m_aCached_Y * (1.0 - m_aCached_Y);
+    return DX;
 }
 
 string Sigmoid::get_desc(){
