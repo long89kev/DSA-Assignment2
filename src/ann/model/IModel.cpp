@@ -35,15 +35,20 @@ void IModel::fit(DataLoader<double, double>* pTrainLoader,
             
             //(0) Set gradient buffer to zeros
             //YOUR CODE IS HERE
+            m_pOptimizer->zero_grad();
             
             //(1) FORWARD-Pass
             //YOUR CODE IS HERE
-            
+            double_tensor Y = forward(X);
+
             //(2) BACKWARD-Pass
             //YOUR CODE IS HERE
+            double batch_loss = m_pLossLayer->forward(Y, t);
+            backward();
             
             //(3) UPDATE learnable parameters
             //YOUR CODE IS HERE
+            m_pOptimizer->step();
             
             //Record the performance for each batch
             ulong_tensor y_true = xt::argmax(t, 1);
