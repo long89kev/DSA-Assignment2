@@ -144,9 +144,25 @@ FCLayer::~FCLayer() {
 
 xt::xarray<double> FCLayer::forward(xt::xarray<double> X) {
     //YOUR CODE IS HERE
+    if(X.dimension() == 1){
+        X.reshape({1, X.size()});
+    }
+    this->m_aCached_X = X;
+    xt::xarray<double> Z = xt::linalg::dot(X, xt::transpose(m_aWeights));
+    if(m_bUse_Bias){
+        Z += m_aBias;
+    }
+    return Z;
 }
 xt::xarray<double> FCLayer::backward(xt::xarray<double> DY) {
     //YOUR CODE IS HERE
+    xt::xarray<double> DX = xt::linalg::dot(DY, m_aWeights);
+    m_aGrad_W += xt::linalg::dot(xt::transpose(DY), m_aCached_X);
+    if(m_bUse_Bias){
+        m_aGrad_b += xt::sum(DY, {0});
+    }
+    m_unSample_Counter += DY.shape()[0];
+    return DX;
 }
 
 int FCLayer::register_params(IParamGroup* ptr_group){
