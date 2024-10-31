@@ -25,6 +25,13 @@ DSFactory::~DSFactory() {
 
 xmap<string, TensorDataset<double, double>*>* DSFactory::get_datasets_3cc(){
     //YOUR CODE IS HERE
+    //prepare the path to files
+    string ds_name = "3c-classification";
+    string dataset_root = m_pConfig->get("dataset_root", "datasets");
+    fs::path dataset_path = fs::path(dataset_root) / fs::path(ds_name);
+    string train_file = (dataset_path / fs::path("3c_train.npy")).string();
+    string valid_file = (dataset_path / fs::path("3c_valid.npy")).string();
+    string test_file = (dataset_path / fs::path("3c_test.npy")).string();
 }
 
 
