@@ -29,9 +29,13 @@ Softmax::~Softmax() {
 
 xt::xarray<double> Softmax::forward(xt::xarray<double> X) {
     //YOUR CODE IS HERE
+    m_aCached_Y = softmax(X, m_nAxis);
+    return m_aCached_Y;
 }
 xt::xarray<double> Softmax::backward(xt::xarray<double> DY) {
     //YOUR CODE IS HERE
+    xt::xarray<double> DX = DY;
+    return DX;
 }
 
 string Softmax::get_desc(){
