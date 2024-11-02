@@ -90,8 +90,16 @@ double_tensor MLPClassifier::predict(
     unsigned long long nsamples = 0;
     for(auto batch: *pLoader){
         //YOUR CODE IS HERE
-        double_tensor X = batch.first;
+        double_tensor X = batch.getData();
+        nsamples += X.shape()[0];
         double_tensor Y = forward(X);
+        if(first_batch){
+            results = Y;
+            first_batch = false;
+        }
+        else{
+            results = xt::view(results, xt::range(0, results.shape()[0]), xt::all()) + Y;
+        }
     }
     cout << "Prediction: End" << endl;
     
@@ -112,12 +120,13 @@ double_tensor MLPClassifier::evaluate(DataLoader<double, double>* pLoader){
     
     //YOUR CODE IS HERE
     for(auto batch: *pLoader){
-        double_tensor X = batch.first;
-        double_tensor t = batch.second;
-        double_tensor Y = forward(X);
+        double_tensor X = batch.getData();
+        double_tensor L = batch.getLabel();
+
+        double_tensor pred = predict(X, true);
         
-        ulong_tensor y_true = xt::argmax(t, 1);
-        ulong_tensor y_pred = xt::argmax(Y, 1);
+        ulong_tensor y_true = xt::argmax(L, -1);
+        ulong_tensor y_pred = xt::argmax(pred, -1);
         meter.accumulate(y_true, y_pred);
     }
     double_tensor metrics = meter.get_metrics();
@@ -193,8 +202,8 @@ bool MLPClassifier::save(string model_path){
         }
         cout << model_path << ": creation" << endl;
         fs::create_directories(model_path);
-        string arch_file =  fs::path(model_path)/
-                            fs::path(m_pConfig->get("arch_file", "arch.txt"));
+        string arch_file =  (fs::path(model_path)/
+                            fs::path(m_pConfig->get("arch_file", "arch.txt"))).string();
 
         //open stream
         ofstream datastream(arch_file);
