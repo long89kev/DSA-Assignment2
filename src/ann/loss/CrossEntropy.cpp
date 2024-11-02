@@ -26,12 +26,14 @@ CrossEntropy::~CrossEntropy() {
 
 double CrossEntropy::forward(xt::xarray<double> X, xt::xarray<double> t){
     //YOUR CODE IS HERE
-    m_aCached_Ypred = softmax(X, -1);
-    double loss = cross_entropy(m_aCached_Ypred, t, true);
+    m_aYtarget = t;
+    m_aCached_Ypred = X;
+
+    double loss = cross_entropy(X, m_aYtarget, true);
     return loss;
 }
 xt::xarray<double> CrossEntropy::backward() {
     //YOUR CODE IS HERE
     xt::xarray<double> DX = m_aCached_Ypred - m_aYtarget;
-    return DX;
+    return DX/m_aYtarget.shape()[0];
 }
