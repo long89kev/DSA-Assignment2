@@ -80,9 +80,9 @@ string Config::get(string key, string def_value){
 string Config::get_new_checkpoint(string model_name){
     string model_root = get("model_root", "./models");
     string ckpt_name = get("ckpt_name", "checkpoint");
-    string model_path = fs::path(model_root) / fs::path(model_name);
+    string model_path = (fs::path(model_root) / fs::path(model_name)).string();
     if(!fs::exists(model_path)) // the first checkpoint: checkpoint-1
-        return fs::path(model_path) / fs::path(ckpt_name + "-1");
+        return (fs::path(model_path) / fs::path(ckpt_name + "-1")).string();
     
     //find the largest idx
     int largest = 0;
@@ -103,5 +103,5 @@ string Config::get_new_checkpoint(string model_name){
     }
     int next_idx = largest + 1;
     string ckpt_folder = ckpt_name + "-" + to_string(next_idx);
-    return fs::path(model_path) / fs::path(ckpt_folder);
+    return (fs::path(model_path) / fs::path(ckpt_folder)).string();
 }
