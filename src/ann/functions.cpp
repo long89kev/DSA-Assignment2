@@ -7,7 +7,7 @@
 
 
 xt::xarray<double> softmax(xt::xarray<double> X, int axis){
-    xt::svector<unsigned long> shape = X.shape();
+    xt::svector<size_t> shape = X.shape();
     axis = positive_index(axis, shape.size());
     shape[axis] = 1;
     
