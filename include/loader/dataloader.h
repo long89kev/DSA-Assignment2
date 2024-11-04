@@ -21,6 +21,7 @@ template<typename DType, typename LType>
 class DataLoader{
 public:
     class Iterator; //forward declaration for class Iterator
+    int len(){ return ptr_dataset->len(); }
     
 private:
     Dataset<DType, LType>* ptr_dataset;
@@ -30,6 +31,7 @@ private:
     int nbatch;
     ulong_tensor item_indices;
     int m_seed;
+    int index;
     
 public:
     DataLoader(Dataset<DType, LType>* ptr_dataset, 
@@ -38,9 +40,14 @@ public:
                 : ptr_dataset(ptr_dataset), 
                 batch_size(batch_size), 
                 shuffle(shuffle),
-                m_seed(seed){
+                m_seed(seed), drop_last(drop_last){
             nbatch = ptr_dataset->len()/batch_size;
             item_indices = xt::arange(0, ptr_dataset->len());
+            if(shuffle){
+                if(m_seed >= 0) xt::random::seed(m_seed);
+                xt::random::shuffle(item_indices);
+            }
+            index = 0;
     }
     virtual ~DataLoader(){}
     
@@ -150,7 +157,7 @@ public:
                 label_shape[0] = size_Batch;
                 xt::xarray<LType> label = xt::empty<LType>(label_shape);
                 for(int i = 0; i < size_Batch; i++){
-                    DataLabel<DType, LType> dl = ptr_dataset->getitem(ptr_dataloader->indices[current_index]);
+                    DataLabel<DType, LType> dl = ptr_dataset->getitem(ptr_dataloader->item_indices[current_index]);
                     xt::view(data, i, xt::all(), xt::all()) = dl.getData();
                     xt::view(label, i, xt::all(), xt::all()) = dl.getLabel();
                     current_index++;
@@ -159,7 +166,7 @@ public:
                 return Batch<DType, LType>(data, label);
             } else {
                 for(int i = 0; i < size_Batch; i++){
-                    DataLabel<DType, LType> dl = ptr_dataset->getitem(ptr_dataloader->indices[current_index]);
+                    DataLabel<DType, LType> dl = ptr_dataset->getitem(ptr_dataloader->item_indices[current_index]);
                     xt::view(data, i, xt::all(), xt::all()) = dl.getData();
                     current_index++;
                 }
