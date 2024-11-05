@@ -34,10 +34,13 @@ xt::xarray<double> Softmax::forward(xt::xarray<double> X) {
 }
 xt::xarray<double> Softmax::backward(xt::xarray<double> DY) {
     //YOUR CODE IS HERE
-    xt::xarray<double> DX = DY;
-    return DX;
+    xt::xarray<double> y = m_aCached_Y;
+    xt::xarray<double> y_t = xt::transpose(y);
+    xt::xarray<double> diag_y = xt::diag(y);
+    xt::xarray<double> DX = diag_y - xt::linalg::dot(y, xt::transpose(y));
+    cout << xt::linalg::dot(DY, DX) << endl;
+    return xt::linalg::dot(DX, DY);
 }
-
 string Softmax::get_desc(){
     string desc = fmt::format("{:<10s}, {:<15s}: {:4d}",
                     "Softmax", this->getname(), m_nAxis);

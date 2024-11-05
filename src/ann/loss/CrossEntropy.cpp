@@ -34,6 +34,7 @@ double CrossEntropy::forward(xt::xarray<double> X, xt::xarray<double> t){
 }
 xt::xarray<double> CrossEntropy::backward() {
     //YOUR CODE IS HERE
-    xt::xarray<double> DX = m_aCached_Ypred - m_aYtarget;
-    return DX/m_aYtarget.shape()[0];
+    const double EPS = 1e-7;
+    xt::xarray<double> grad = m_aYtarget / (m_aCached_Ypred + EPS);
+    return -grad / m_aCached_Ypred.shape()[0];
 }
