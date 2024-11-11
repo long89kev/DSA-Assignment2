@@ -183,7 +183,7 @@ template<class T>
 Heap<T>& Heap<T>::operator=(const Heap<T>& heap){
     //YOUR CODE IS HERE
     if(this != &heap){
-        removeInternalData();
+        // removeInternalData();
         copyFrom(heap);
     }
     return *this;
@@ -223,7 +223,7 @@ void Heap<T>::push(T item){ //item  = 25
 template<class T>
 T Heap<T>::pop(){
     //YOUR CODE IS HERE
-    if(count == 0) throw std::out_of_range("Heap is empty");
+    if(count == 0) throw std::underflow_error("Calling to peek with the empty heap.");
     T item = elements[0];
     elements[0] = elements[count - 1];
     count--;
@@ -245,7 +245,7 @@ T Heap<T>::pop(){
 template<class T>
 const T Heap<T>::peek(){
     //YOUR CODE IS HERE
-    if(count == 0) throw std::out_of_range("Heap is empty");
+    if(count == 0) throw std::underflow_error("Calling to peek with the empty heap.");
     return elements[0];
 }
 
@@ -276,7 +276,7 @@ int Heap<T>::size(){
 template<class T>
 void Heap<T>::heapify(T array[], int size){
     //YOUR CODE IS HERE
-    clear();
+    // clear();
     for(int idx=0; idx < size; idx++){
         push(array[idx]);
     }
@@ -285,7 +285,10 @@ void Heap<T>::heapify(T array[], int size){
 template<class T>
 void Heap<T>::clear(){
     //YOUR CODE IS HERE
+    removeInternalData();
+    capacity = 10;
     count = 0;
+    elements = new T[capacity];
 }
 
 template<class T>
@@ -374,7 +377,12 @@ template<class T>
 int Heap<T>::getItem(T item){
     //YOUR CODE IS HERE
     for(int idx=0; idx < count; idx++){
-        if(elements[idx] == item) return idx;
+        if(comparator != 0){
+            if(comparator(elements[idx], item) == 0) return idx;
+        }
+        else{
+            if(elements[idx] == item) return idx;
+        }
     }
     return -1;
 }
@@ -391,10 +399,10 @@ void Heap<T>::copyFrom(const Heap<T>& heap){
     count = heap.count;
     elements = new T[capacity];
     this->comparator = heap.comparator;
-    this->deleteUserData = heap.deleteUserData;
+    this->deleteUserData = 0;
     
     //Copy items from heap:
-    for(int idx=0; idx < heap.size(); idx++){
+    for(int idx=0; idx < heap.count; idx++){
         this->elements[idx] = heap.elements[idx];
     }
 }
