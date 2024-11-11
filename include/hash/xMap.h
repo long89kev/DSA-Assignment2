@@ -217,7 +217,26 @@ xMap<K,V>::xMap(
 template<class K, class V>
 xMap<K,V>::xMap(const xMap<K,V>& map){
     //YOUR CODE IS HERE
-    copyMapFrom(map);
+    this->capacity = 10;
+    this->count = 0;
+    this->table = new DLinkedList<Entry*>[capacity];
+    
+    this->hashCode = map.hashCode;
+    this->loadFactor = map.loadFactor;
+    
+    this->valueEqual = map.valueEqual;
+    this->keyEqual = map.keyEqual;
+    //SHOULD NOT COPY: deleteKeys, deleteValues => delete ONLY TIME in map if needed
+    this->deleteKeys = 0;
+    this->deleteValues = 0;
+    
+    //copy entries
+    for(int idx=0; idx < map.capacity; idx++){
+        DLinkedList<Entry*>& list = map.table[idx];
+        for(auto pEntry: list){
+            this->put(pEntry->key, pEntry->value);
+        }
+    }
 }
 
 template<class K, class V>
@@ -527,16 +546,18 @@ template<class K, class V>
 void xMap<K,V>::copyMapFrom(const xMap<K,V>& map){
     removeInternalData();
     
-    this->capacity = map.capacity;
+    this->capacity = 10;
     this->count = 0;
     this->table = new DLinkedList<Entry*>[capacity];
     
-    this->hashCode = hashCode;
-    this->loadFactor = loadFactor;
+    this->hashCode = map.hashCode;
+    this->loadFactor = map.loadFactor;
     
-    this->valueEqual = valueEqual;
-    this->keyEqual = keyEqual;
+    this->valueEqual = map.valueEqual;
+    this->keyEqual = map.keyEqual;
     //SHOULD NOT COPY: deleteKeys, deleteValues => delete ONLY TIME in map if needed
+    this->deleteKeys = 0;
+    this->deleteValues = 0;
     
     //copy entries
     for(int idx=0; idx < map.capacity; idx++){
