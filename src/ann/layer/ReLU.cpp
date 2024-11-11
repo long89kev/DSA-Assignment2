@@ -28,7 +28,7 @@ ReLU::~ReLU() {
 
 xt::xarray<double> ReLU::forward(xt::xarray<double> X) {
     //YOUR CODE IS HERE
-    m_aMask = X >= 0;
+    m_aMask = xt::maximum(X, 0.0);
     return X * xt::cast<double>(m_aMask);
 }
 xt::xarray<double> ReLU::backward(xt::xarray<double> DY) {
