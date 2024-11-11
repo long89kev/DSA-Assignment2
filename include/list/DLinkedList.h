@@ -336,7 +336,7 @@ DLinkedList<T> &DLinkedList<T>::operator=(const DLinkedList<T> &list)
 {
     // TODO         
     if(this != &list){
-        removeInternalData();
+        // removeInternalData();
         copyFrom(list);
     }
     return *this;
@@ -592,13 +592,12 @@ void DLinkedList<T>::removeInternalData()
      * Traverses and deletes each node between the head and tail to release memory.
      */
     // TODO
+    clear();
     if(deleteUserData != nullptr){
         deleteUserData(this);
     }
-    clear();
-    head->next = tail;
-    tail->prev = head;
-    count = 0;
+    head = nullptr;
+    tail = nullptr;
 }
 
 #endif /* DLINKEDLIST_H */
