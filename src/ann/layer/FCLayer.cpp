@@ -157,9 +157,11 @@ xt::xarray<double> FCLayer::forward(xt::xarray<double> X) {
 xt::xarray<double> FCLayer::backward(xt::xarray<double> DY) {
     //YOUR CODE IS HERE
     xt::xarray<double> DX = xt::linalg::dot(DY, m_aWeights);
-    m_aGrad_W += xt::linalg::dot(xt::transpose(DY), m_aCached_X);
+    m_aGrad_W += xt::linalg::dot(xt::transpose(DY), m_aCached_X);  
+    m_aGrad_W /= DY.shape()[0];
     if(m_bUse_Bias){
         m_aGrad_b += xt::sum(DY, {0});
+        m_aGrad_b /= DY.shape()[0];
     }
     m_unSample_Counter += DY.shape()[0];
     return DX;

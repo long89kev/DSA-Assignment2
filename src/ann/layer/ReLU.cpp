@@ -28,12 +28,12 @@ ReLU::~ReLU() {
 
 xt::xarray<double> ReLU::forward(xt::xarray<double> X) {
     //YOUR CODE IS HERE
-    m_aMask = X > 0;
-    return X * m_aMask;
+    m_aMask = xt::maximum(X, 0.0);
+    return X * xt::cast<double>(m_aMask);
 }
 xt::xarray<double> ReLU::backward(xt::xarray<double> DY) {
     //YOUR CODE IS HERE
-    return DY * m_aMask;
+    return DY *  xt::cast<double>(m_aMask);
 }
 
 string ReLU::get_desc(){

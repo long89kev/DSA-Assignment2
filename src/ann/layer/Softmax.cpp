@@ -33,11 +33,21 @@ xt::xarray<double> Softmax::forward(xt::xarray<double> X) {
     return m_aCached_Y;
 }
 xt::xarray<double> Softmax::backward(xt::xarray<double> DY) {
-    //YOUR CODE IS HERE
-    xt::xarray<double> DX = DY;
+    xt::xarray<double> y = m_aCached_Y;
+    xt::xarray<double> DX = xt::zeros_like(DY);
+
+    for (size_t i = 0; i < y.shape()[0]; ++i) {
+        xt::xarray<double> yi = xt::view(y, i);
+        xt::xarray<double> dyi = xt::view(DY, i);
+
+        xt::xarray<double> diag_yi = xt::diag(yi);
+        xt::xarray<double> outer_yi = xt::linalg::outer(yi, yi);
+
+        xt::view(DX, i) = xt::linalg::dot(diag_yi - outer_yi, dyi);
+    }
+
     return DX;
 }
-
 string Softmax::get_desc(){
     string desc = fmt::format("{:<10s}, {:<15s}: {:4d}",
                     "Softmax", this->getname(), m_nAxis);
