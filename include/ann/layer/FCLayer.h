@@ -41,6 +41,11 @@ public:
     }
     bool has_learnable_param(){ return true; };
     LayerType get_type(){ return LayerType::FC; };
+    xt::xarray<double> m_aGrad_W;
+    xt::xarray<double> m_aGrad_b;
+    xt::xarray<double> get_weights(){ return m_aWeights; }
+    xt::xarray<double> get_bias(){ return m_aBias; }
+    xt::xarray<double> get_output(){ return m_aCached_X; }
 
 protected:
     virtual void init_weights();
@@ -52,8 +57,8 @@ private:
     xt::xarray<double> m_aWeights; //N_out x N_in
     xt::xarray<double> m_aBias;
     
-    xt::xarray<double> m_aGrad_W;
-    xt::xarray<double> m_aGrad_b;
+    // xt::xarray<double> m_aGrad_W;
+    // xt::xarray<double> m_aGrad_b;
     xt::xarray<double> m_aCached_X;
     unsigned long long m_unSample_Counter;
 };
