@@ -22,6 +22,7 @@ namespace fs = std::filesystem;
 // #include "modelzoo/threeclasses.h"
 
 #include "demo/heap/HeapDemo.h"
+#include "demo/hash/xMapDemo.h"
 
 
 int main(int argc, char** argv) {
@@ -34,10 +35,28 @@ int main(int argc, char** argv) {
     // twoclasses_classification();
     //threeclasses_classification();
 
-    cout << "Heap Demo: " << endl;
-    heapDemo1();
+    // cout << "Heap Demo: " << endl;
+    // heapDemo1();
     // heapDemo2();
     // heapDemo3();
+
+    cout << "Hash Demo: " << endl;
+    cout << "Hash Demo 1: " << endl;
+    hashDemo1();
+    cout << "Hash Demo 2: " << endl;
+    hashDemo2();
+    cout << "Hash Demo 3: " << endl;
+    hashDemo3();
+    cout << "Hash Demo 4: " << endl;
+    hashDemo4();
+    cout << "Hash Demo 5: " << endl;
+    hashDemo5();
+    cout << "Hash Demo 6: " << endl;
+    hashDemo6();
+    cout << "Hash Demo 7: " << endl;
+    hashDemo7();
+    cout << "Country Demo: " << endl;
+    countryDemo();
  
     return 0;
 }
