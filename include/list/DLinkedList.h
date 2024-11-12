@@ -285,7 +285,7 @@ public:
 
         BWDIterator operator++(int){
             BWDIterator iterator = *this;
-            --*this;
+            ++*this;
             return iterator;
         }
     };
