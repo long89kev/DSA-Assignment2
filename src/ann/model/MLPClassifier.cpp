@@ -98,7 +98,7 @@ double_tensor MLPClassifier::predict(
             first_batch = false;
         }
         else{
-            results = xt::view(results, xt::range(0, results.shape()[0]), xt::all()) + Y;
+            results = xt::view(results, xt::range(0, results.shape()[0])) + Y;
         }
     }
     cout << "Prediction: End" << endl;
@@ -125,8 +125,8 @@ double_tensor MLPClassifier::evaluate(DataLoader<double, double>* pLoader){
 
         double_tensor pred = predict(X, true);
         
-        ulong_tensor y_true = xt::argmax(L, -1);
-        ulong_tensor y_pred = xt::argmax(pred, -1);
+        double_tensor y_true = xt::argmax(L, -1);
+        double_tensor y_pred = xt::argmax(pred, -1);
         meter.accumulate(y_true, y_pred);
     }
     double_tensor metrics = meter.get_metrics();
@@ -169,14 +169,18 @@ double_tensor MLPClassifier::forward(double_tensor X){
     double_tensor Y = X;
     for(auto pLayer: m_layers){
         Y = pLayer->forward(Y);
+        // cout << "Intermediate output: " << Y << endl;
     }
     return Y;
 }
 void MLPClassifier::backward(){
     //YOUR CODE IS HERE
     double_tensor dY = m_pLossLayer->backward();
-    for(int idx=m_layers.size()-1; idx >= 0; idx--){
-        dY = m_layers.get(idx)->backward(dY);
+    DLinkedList<ILayer*>::BWDIterator it = m_layers.bbegin();
+    while(it != m_layers.bend()){
+        ILayer* pLayer = *it;
+        dY = pLayer->backward(dY);
+        it++;
     }
 }
 //protected: for the training mode: end
@@ -322,4 +326,3 @@ bool MLPClassifier::load(string model_path,  bool use_name_in_file){
     }
     return true;
 }
-
